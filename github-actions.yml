@@ -1,0 +1,21 @@
+name: AgroMind CI/CD
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Backend
+        run: cd backend && npm install
+
+      - name: Install Frontend
+        run: cd frontend && npm install
+
+      - name: Build Docker
+        run: docker-compose -f devops/docker-compose.yml build

@@ -1,0 +1,46 @@
+services:
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    image: node:18
+    container_name: backend
+    working_dir: /app
+    volumes:
+      - ./backend-devops:/app
+    command: sh -c "npm install && node server.js"
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend-devops/.env
+    depends_on:
+      - mongo
+      - ml-service   # ✅ ADD THIS
+
+  frontend:
+    image: node:18
+    container_name: frontend
+    working_dir: /app
+    volumes:
+      - ./frontend-devops:/app
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+  # ✅ NEW ML SERVICE
+  ml-service:
+    build: ./ml-service
+    container_name: ml-service
+    ports:
+      - "8000:8000"
+
+volumes:
+  mongo-data:
